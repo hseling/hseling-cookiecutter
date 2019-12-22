@@ -1,0 +1,2 @@
+recursive-include hseling_api_{{cookiecutter.package_name}}/templates *
+recursive-include hseling_api_{{cookiecutter.package_name}}/static *

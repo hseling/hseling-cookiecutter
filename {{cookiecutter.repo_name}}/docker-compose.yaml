@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  hseling-api-{{cookiecutter.package_uri_part}}:
+    build:
+      context: .
+      dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
+    ports:
+    - "5000:80"
+ 

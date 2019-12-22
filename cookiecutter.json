@@ -1,4 +1,10 @@
 {
   "application_name": "Your Application",
-  "package_name": "yourapplication"
+  "author": "Sergey Sobko",
+  "email": "ssobko@hse.ru",
+  "maintainer": "{{ cookiecutter.author }} <{{ cookiecutter.email }}>",
+  "app_slug": "{{ cookiecutter.application_name.lower()|replace(' ', '_')|replace('-', '_') }}",
+  "package_name": "{{ cookiecutter.app_slug }}",
+  "package_uri_part": "{{ cookiecutter.package_name|replace('_', '-') }}",
+  "repo_name": "hseling-repo-{{ cookiecutter.package_uri_part }}"
 }
