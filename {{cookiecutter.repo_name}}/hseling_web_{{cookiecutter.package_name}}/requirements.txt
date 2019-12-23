@@ -6,4 +6,6 @@ psycopg2==2.7.4
 djangorestframework>=3.9.1
 django-log-request-id==1.3.2
 django-prometheus==1.1.0
+{% if not cookiecutter.rest %}
 jsonrpcclient[requests]==3.3.4
+{% endif %}

@@ -3,8 +3,10 @@ from base64 import b64decode, b64encode
 from flask import Flask, jsonify, request
 from logging import getLogger
 
+{% if not cookiecutter.rest %}
 from jsonrpc.backend.flask import api
 from jsonrpc.exceptions import JSONRPCDispatchException
+{% endif %}
 
 from hseling_api_{{cookiecutter.package_name}} import boilerplate
 
@@ -34,7 +36,9 @@ if not app.debug:
     app.logger.addHandler(file_handler)
 
 log = getLogger(__name__)
+{% if not cookiecutter.rest %}
 app.register_blueprint(api.as_blueprint(), url_prefix="/rpc")
+{% endif %}
 
 ALLOWED_EXTENSIONS = ['txt']
 
@@ -86,7 +90,7 @@ def upload_endpoint():
                 allowed_extensions=ALLOWED_EXTENSIONS):
             return jsonify(boilerplate.save_file(upload_file))
     return boilerplate.get_upload_form()
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def upload_file(file_name, file_contents_base64):
@@ -102,6 +106,7 @@ def upload_file(file_name, file_contents_base64):
     except TypeError:
         raise JSONRPCDispatchException(code=boilerplate.ERROR_NO_FILE_PART_CODE, message=boilerplate.ERROR_NO_FILE_PART)
     return boilerplate.save_file_simple(file_name, file_contents, file_size)
+{%- endif %}
 
 {% if cookiecutter.rest -%}
 @app.route('/files/<path:file_id>')
@@ -109,7 +114,7 @@ def get_file_endpoint(file_id):
     if file_id in boilerplate.list_files(recursive=True):
         return boilerplate.get_file(file_id)
     return jsonify({'error': boilerplate.ERROR_NO_SUCH_FILE})
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def get_file(file_id):
@@ -122,16 +127,18 @@ def get_file(file_id):
         raise JSONRPCDispatchException(code=boilerplate.ERROR_NO_FILE_PART_CODE, message=boilerplate.ERROR_NO_FILE_PART)
     return {"file_id": file_id,
             "file_contents_base64": file_contents_base64}
+{%- endif %}
 
 {% if cookiecutter.rest -%}
 @app.route('/files')
 def list_files_endpoint():
     return jsonify({'file_ids': boilerplate.list_files(recursive=True)})
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def list_files():
     return {'file_ids': boilerplate.list_files(recursive=True)}
+{%- endif %}
 
 {% if cookiecutter.celery -%}
 def do_process(file_ids):
@@ -150,7 +157,7 @@ def do_process(file_ids):
 @app.route("/process/<file_ids>")
 def process_endpoint(file_ids=None):
     return jsonify(do_process(file_ids))
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def process_files(file_ids):
@@ -159,6 +166,7 @@ def process_files(file_ids):
     if isinstance(file_ids, list):
         file_ids = ",".join(file_ids)
     return do_process(file_ids)
+{%- endif %}
 
 
 def do_query(file_id, query_type):
@@ -178,7 +186,7 @@ def do_query(file_id, query_type):
 def query_endpoint(file_id):
     query_type = request.args.get('type')
     return jsonify(do_query(file_id, query_type))
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def query_file(file_id, query_type):
@@ -188,16 +196,18 @@ def query_file(file_id, query_type):
     elif result.get("error") == boilerplate.ERROR_NO_SUCH_FILE:
         raise JSONRPCDispatchException(code=boilerplate.ERROR_NO_SUCH_FILE_CODE, message=result.get("error"))
     return result
+{%- endif %}
 
 {% if cookiecutter.rest -%}
 @app.route("/status/<task_id>")
 def status_endpoint(task_id):
     return jsonify(boilerplate.get_task_status(task_id))
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def get_task_status(task_id):
     return boilerplate.get_task_status(task_id)
+{%- endif %}
 
 {% if cookiecutter.mysql -%}
 def do_test_mysql():
@@ -213,11 +223,12 @@ def do_test_mysql():
 @app.route("/test_mysql")
 def test_mysql_endpoint():
     return jsonify(do_test_mysql())
-{%- endif %}
+{%- else %}
 
 @api.dispatcher.add_method
 def test_mysql():
     return do_test_mysql()
+{%- endif %}
 {%- endif %}
 
 {% if cookiecutter.rest -%}
