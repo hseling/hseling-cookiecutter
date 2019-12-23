@@ -19,7 +19,7 @@ All set! Run the application:
 
 And then open it at [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 
-# Docker
+## Docker
 
 Your can run full bundle like this:
 
@@ -35,4 +35,4 @@ If you do a change, use `make test` from root directory to test the updated temp
 
 # License
 
-MIT License, see LICENSE
+MIT License. See LICENSE file.

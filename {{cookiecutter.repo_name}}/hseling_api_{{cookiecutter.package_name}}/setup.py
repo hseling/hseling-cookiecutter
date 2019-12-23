@@ -19,7 +19,20 @@ VERSION = '1.0.0'
 
 REQUIRED = [
     'hseling-lib-{{cookiecutter.package_uri_part}}',
-    'flask'
+    'flask',
+    'minio',
+    'requests',
+    'lxml',
+    'html5lib',
+    'beautifulsoup4',
+    'scrapy',
+{% if not cookiecutter.rest %}
+    'json-rpc',{%- endif %}
+{% if cookiecutter.mysql %}
+    'mysql',
+    'mysql-connector',{%- endif %}
+{% if cookiecutter.celery -%}
+    'celery[redis]'{%- endif %}
 ]
 
 EXTRAS = {}

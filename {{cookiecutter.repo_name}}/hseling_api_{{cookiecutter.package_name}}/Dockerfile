@@ -18,8 +18,9 @@ COPY --from=build /dependencies /dependencies
 COPY ./hseling_lib_{{cookiecutter.package_name}} /dependencies/hseling_lib_{{cookiecutter.package_name}}
 RUN pip install /dependencies/hseling_lib_{{cookiecutter.package_name}}
 
-COPY ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}} /app
+COPY ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}} /app/hseling_api_{{cookiecutter.package_name}}
+COPY ./hseling_api_{{cookiecutter.package_name}}/main.py /app/main.py
 
-ENV HSELING_API_YOUR_APPLICATION_SETTINGS="/app/default_settings.py"
+ENV HSELING_API_YOUR_APPLICATION_SETTINGS="/app/hseling_api_{{cookiecutter.package_name}}/default_settings.py"
 
 HEALTHCHECK CMD curl --fail http://localhost/healthz || exit 1
