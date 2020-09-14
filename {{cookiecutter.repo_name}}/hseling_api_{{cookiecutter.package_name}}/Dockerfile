@@ -21,6 +21,8 @@ RUN pip install /dependencies/hseling_lib_{{cookiecutter.package_name}}
 COPY ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}} /app/hseling_api_{{cookiecutter.package_name}}
 COPY ./hseling_api_{{cookiecutter.package_name}}/main.py /app/main.py
 
+RUN mkdir /data
+
 ENV HSELING_API_{{cookiecutter.package_name.upper()}}_SETTINGS="/app/hseling_api_{{cookiecutter.package_name}}/default_settings.py"
 
 HEALTHCHECK CMD curl --fail http://localhost/healthz || exit 1

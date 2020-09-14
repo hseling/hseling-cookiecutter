@@ -2,133 +2,121 @@ version: '3.4'
 
 x-common-variables: &common-variables
 {%- if cookiecutter.celery %}
- CELERY_BROKER_URL: redis://redis:6379
- CELERY_RESULT_BACKEND: redis://redis:6379
+  CELERY_BROKER_URL: redis://redis:6379
+  CELERY_RESULT_BACKEND: redis://redis:6379
 {%- endif %}
- MINIO_ACCESS_KEY: minio
- MINIO_SECRET_KEY: minio123
- MINIO_URL: minio:9000
- MINIO_BUCKET_NAME: hse-api-bucket
 {%- if cookiecutter.mysql %}
- MYSQL_HOST: mysql
- MYSQL_ROOT_PASSWORD: mysql123
- MYSQL_USER: mysql
- MYSQL_PASSWORD: mysql123
- MYSQL_DATABASE: hse-api-database
+  MYSQL_HOST: mysql
+  MYSQL_ROOT_PASSWORD: mysql123
+  MYSQL_USER: mysql
+  MYSQL_PASSWORD: mysql123
+  MYSQL_DATABASE: hse-api-database
 {%- endif %}
- RESTRICTED_MODE: 0
+  RESTRICTED_MODE: 0
 
 services:
- hse-api-web:
-  build:
-   context: .
-   dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
-  ports:
-   - "5000:80"
-  volumes:
-   - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
-  links:
-   - minio
+  hse-api-web:
+    build:
+      context: .
+      dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
+    ports:
+      - "5000:80"
+    volumes:
+      - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
+    - type: bind
+      source: ./hseling_data_{{cookiecutter.package_name}}
+      target: /data
+    depends_on:
 {%- if cookiecutter.mysql %}
-   - mysql
+      - mysql
 {%- endif %}
 {%- if cookiecutter.celery %}
-   - redis
-   - hse-api-celery
+      - redis
+      - hse-api-celery
 {%- endif %}
-  environment: *common-variables
+    environment: *common-variables
 {% if cookiecutter.celery %}
- hse-api-celery:
-  build:
-   context: .
-   dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
-  command: celery -A main.celery worker
-  volumes:
-   - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
-  links:
-   - minio
+  hse-api-celery:
+    build:
+      context: .
+      dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
+    command: celery -A main.celery worker
+    volumes:
+      - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
+    - type: bind
+      source: ./hseling_data_{{cookiecutter.package_name}}
+      target: /data
+    depends_on:
 {%- if cookiecutter.mysql %}
-   - mysql
+      - mysql
 {%- endif %}
-   - redis
-  environment: *common-variables
+      - redis
+    environment: *common-variables
 {%- endif %}
-
- minio:
-  image: minio/minio:latest
-  volumes:
-   - data:/data
-  ports:
-   - "9000:9000"
-  command: server /data/minio
-  environment: *common-variables
 
 {% if cookiecutter.mysql %}
- mysql:
-  image: mysql
-  command: --default-authentication-plugin=mysql_native_password
-  restart: always
-  environment: *common-variables
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment: *common-variables
 {%- endif %}
 
 {% if cookiecutter.celery %}
- redis:
-  image: redis:latest
+  redis:
+    image: redis:latest
 {%- endif %}
 
  # Development related
- db:
-  env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-  build:
-   context: ./hseling_web_{{cookiecutter.package_name}}/
-   dockerfile: ./docker/db/Dockerfile
-   args:
-    # These values should be in sync with environment.env
-    # for development. If you change them, you'll 
-    # need to rebuild the container
-    - POSTGRES_DB=templatesitedb
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=somepassword
-    - POSTGRES_PORT=5432
-    # Remember to keep this consistent
-    - django_secret_key=secret_key!
+  db:
+    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
+    build:
+      context: ./hseling_web_{{cookiecutter.package_name}}/
+      dockerfile: ./docker/db/Dockerfile
+      args:
+        # These values should be in sync with environment.env
+        # for development. If you change them, you'll 
+        # need to rebuild the container
+        - POSTGRES_DB=templatesitedb
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=somepassword
+        - POSTGRES_PORT=5432
+        # Remember to keep this consistent
+        - django_secret_key=secret_key!
 
- log:
-  env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-  build:
-   context: ./hseling_web_{{cookiecutter.package_name}}/
-   dockerfile: ./docker/log/Dockerfile
+  log:
+    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
+    build:
+      context: ./hseling_web_{{cookiecutter.package_name}}/
+      dockerfile: ./docker/log/Dockerfile
 
- build-deps:
-  env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-  build:
-   context: ./hseling_web_{{cookiecutter.package_name}}/
-   dockerfile: ./docker/deps/Dockerfile
-  volumes:
-   - ./hseling_web_{{cookiecutter.package_name}}/vendor:/opt/ext_vendor
-  command: /opt/copy_deps.sh
+  build-deps:
+    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
+    build:
+      context: ./hseling_web_{{cookiecutter.package_name}}/
+      dockerfile: ./docker/deps/Dockerfile
+    volumes:
+      - ./hseling_web_{{cookiecutter.package_name}}/vendor:/opt/ext_vendor
+    command: /opt/copy_deps.sh
 
- dev-server:
-  env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-  environment:
-   - CONSOLE_LOGS=1
-  build: 
-   context: ./hseling_web_{{cookiecutter.package_name}}/
-   args:
-    # Remember to keep this consistent
-    - django_secret_key=secret_key!
-  command: ./start_dev_server.sh
-  ports:
-   - "8000:80"
-  volumes:
-   - ./hseling_web_{{cookiecutter.package_name}}/src:/opt/code
-  depends_on:
-   - db
-   - log
-   - hse-api-web
+  dev-server:
+    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
+    environment:
+      - CONSOLE_LOGS=1
+    build: 
+      context: ./hseling_web_{{cookiecutter.package_name}}/
+      args:
+        # Remember to keep this consistent
+        - django_secret_key=secret_key!
+    command: ./start_dev_server.sh
+    ports:
+      - "8000:80"
+    volumes:
+      - ./hseling_web_{{cookiecutter.package_name}}/src:/opt/code
+    depends_on:
+      - db
+      - log
+      - hse-api-web
 {%- if cookiecutter.celery %}
-   - hse-api-celery
+      - hse-api-celery
 {%- endif %}
-
-volumes:
-  data:
