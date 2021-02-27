@@ -25,5 +25,5 @@ RUN mkdir -p /data
 
 ENV HSELING_API_{{cookiecutter.package_name.upper()}}_SETTINGS="/app/hseling_api_{{cookiecutter.package_name}}/default_settings.py"
 
-HEALTHCHECK CMD curl --fail http://localhost:5000/healthz || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:5000/api/healthz || exit 1
 

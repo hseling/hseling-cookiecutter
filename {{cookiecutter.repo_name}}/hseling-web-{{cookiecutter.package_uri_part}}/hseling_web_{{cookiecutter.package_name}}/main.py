@@ -2,8 +2,12 @@ import os
 from base64 import b64decode, b64encode
 from flask import Flask, Blueprint, render_template, request, redirect, jsonify
 from logging import getLogger
-import jsonrpclib
 
+{% if cookiecutter.rest -%}
+import requests
+{% else %}
+import jsonrpclib
+{%- endif %}
 
 app = Flask(__name__)
 app.config['DEBUG'] = False
@@ -18,16 +22,19 @@ print(app.config)
 
 
 def get_server_endpoint():
+{% if cookiecutter.rest %}
     HSELING_API_ENDPOINT = app.config.get('HSELING_API_ENDPOINT')
-    HSELING_RPC_ENDPOINT = app.config.get('HSELING_RPC_ENDPOINT')
+    return HSELING_API_ENDPOINT
+{% else %}
 
+    HSELING_RPC_ENDPOINT = app.config.get('HSELING_RPC_ENDPOINT')
     return HSELING_RPC_ENDPOINT
 
 
 def get_jsonrpc_server():
     jsonrpc_endpoint = get_server_endpoint()
     return jsonrpclib.Server(jsonrpc_endpoint)
-
+{%- endif %}
 
 if not app.debug:
     import logging
@@ -42,7 +49,7 @@ if not app.debug:
 log = getLogger(__name__)
 
 
-@app.route('/healthz')
+@app.route('/web/healthz')
 def healthz():
     app.logger.info('Health checked')
     return jsonify({"status": "ok", "message": "hseling-web-{{cookiecutter.package_uri_part}}"})
@@ -50,6 +57,10 @@ def healthz():
 
 @app.route('/web/')
 def index():
+{% if cookiecutter.rest %}
+    api_endpoint = get_server_endpoint()
+    result = requests.get(api_endpoint).content
+{% else %}
     a = int(request.args.get('a', 1))
     b = int(request.args.get('b', 2))
 
@@ -59,7 +70,7 @@ def index():
         result = server.add(a, b)
     except ConnectionRefusedError:
         result = None
-
+{% endif %}
     return render_template('index.html.j2', result=result)
 
 

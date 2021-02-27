@@ -21,6 +21,6 @@ COPY ./hseling-web-{{cookiecutter.package_uri_part}}/main.py /app/main.py
 
 ENV HSELING_WEB_{{cookiecutter.package_name.upper()}}_SETTINGS="/app/hseling_web_{{cookiecutter.package_name}}/default_settings.py"
 
-HEALTHCHECK CMD curl --fail http://localhost:8000/healthz || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:8000/web/healthz || exit 1
 
 EXPOSE 8000

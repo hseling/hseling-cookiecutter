@@ -73,13 +73,13 @@ def process_task(file_ids_list=None):
 {% endif -%}
 
 
-@app.route('/healthz')
+@app.route('/api/healthz')
 def healthz():
     app.logger.info('Health checked')
     return jsonify({"status": "ok", "message": "hseling-api-{{cookiecutter.package_uri_part}}"})
 
 {% if cookiecutter.rest -%}
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/api/upload', methods=['GET', 'POST'])
 def upload_endpoint():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -111,7 +111,7 @@ def upload_file(file_name, file_contents_base64):
 {%- endif %}
 
 {% if cookiecutter.rest -%}
-@app.route('/files/<path:file_id>')
+@app.route('/api/files/<path:file_id>')
 def get_file_endpoint(file_id):
     if file_id in boilerplate.list_files(recursive=True):
         return boilerplate.get_file(file_id)
@@ -132,7 +132,7 @@ def get_file(file_id):
 {%- endif %}
 
 {% if cookiecutter.rest -%}
-@app.route('/files')
+@app.route('/api/files')
 def list_files_endpoint():
     return jsonify({'file_ids': boilerplate.list_files(recursive=True)})
 {%- else %}
@@ -155,8 +155,8 @@ def do_process(file_ids):
 {%- endif %}
 
 {% if cookiecutter.rest -%}
-@app.route('/process')
-@app.route("/process/<file_ids>")
+@app.route('/api/process')
+@app.route("/api/process/<file_ids>")
 def process_endpoint(file_ids=None):
     return jsonify(do_process(file_ids))
 {%- else %}
@@ -184,7 +184,7 @@ def do_query(file_id, query_type):
     return {"error": boilerplate.ERROR_NO_SUCH_FILE}
 
 {% if cookiecutter.rest -%}
-@app.route("/query/<path:file_id>")
+@app.route("/api/query/<path:file_id>")
 def query_endpoint(file_id):
     query_type = request.args.get('type')
     return jsonify(do_query(file_id, query_type))
@@ -201,7 +201,7 @@ def query_file(file_id, query_type):
 {%- endif %}
 
 {% if cookiecutter.rest -%}
-@app.route("/status/<task_id>")
+@app.route("/api/status/<task_id>")
 def status_endpoint(task_id):
     return jsonify(boilerplate.get_task_status(task_id))
 {%- else %}
@@ -222,7 +222,7 @@ def do_test_mysql():
     return {"schema": schema}
 
 {% if cookiecutter.rest -%}
-@app.route("/test_mysql")
+@app.route("/api/test_mysql")
 def test_mysql_endpoint():
     return jsonify(do_test_mysql())
 {%- else %}
@@ -255,7 +255,7 @@ def get_endpoints(ctx):
     return {ep["name"]: ep for ep in all_endpoints if ep}
 
 
-@app.route("/")
+@app.route("/api/")
 def main_endpoint():
     ctx = {"restricted_mode": boilerplate.RESTRICTED_MODE}
     return jsonify({"endpoints": get_endpoints(ctx)})

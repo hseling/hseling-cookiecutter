@@ -54,7 +54,7 @@ PYTHONPATH=hseling-lib-{{cookiecutter.package_uri_part}}:hseling-api-{{cookiecut
 Prior to running MySQL server using Docker Compose
 
 ```bash
-rm -fr hseling-data-new-app/mysql/.gitkeep
+rm -fr hseling-data-{{cookiecutter.package_uri_part}}/mysql/.gitkeep
 ```
 {%- endif %}
 
