@@ -3,11 +3,13 @@
   <head>
     <meta charset="utf-8">
     <title>Hello, world!</title>
-    {% raw %}<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">{% endraw %}
+    {% raw %}<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">{% endraw %}
   </head>
   <body>
     Hello, world! This is a test!<br>
     <hr>
     {% raw -%}Result from RPC Server: {% if result %}{{ result }}{% else %}No result. Check if server is up and running on port 5000{% endif %}{%- endraw %}
   </body>
+  {% raw %}<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>{% endraw %}
+  {% raw %}<script src="{{ url_for('static', filename='js/main.js') }}"></script>{% endraw %}
 </html>

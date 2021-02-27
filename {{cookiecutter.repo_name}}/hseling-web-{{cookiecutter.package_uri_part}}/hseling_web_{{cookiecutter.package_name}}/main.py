@@ -14,6 +14,8 @@ if os.environ.get('HSELING_WEB_{{cookiecutter.package_name.upper()}}_SETTINGS'):
 app.config['HSELING_API_ENDPOINT'] = os.environ.get('HSELING_API_ENDPOINT')
 app.config['HSELING_RPC_ENDPOINT'] = os.environ.get('HSELING_RPC_ENDPOINT')
 
+print(app.config)
+
 
 def get_server_endpoint():
     HSELING_API_ENDPOINT = app.config.get('HSELING_API_ENDPOINT')

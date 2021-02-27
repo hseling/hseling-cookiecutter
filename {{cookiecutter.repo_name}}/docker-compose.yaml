@@ -93,8 +93,11 @@ services:
     environment: *common-variables
     volumes:
       - type: bind
-        source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
-        target: /app/hseling_api_{{cookiecutter.package_name}}
+        source: ./hseling-web-{{cookiecutter.package_uri_part}}/hseling_web_{{cookiecutter.package_name}}
+        target: /app/hseling_web_{{cookiecutter.package_name}}
+      - type: bind
+        source: ./hseling-web-{{cookiecutter.package_uri_part}}/hseling_web_{{cookiecutter.package_name}}/static
+        target: /app/static
       - type: bind
         source: ./hseling-data-{{cookiecutter.package_uri_part}}/web
         target: /data

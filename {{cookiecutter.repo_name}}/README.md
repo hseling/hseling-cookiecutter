@@ -50,6 +50,14 @@ PYTHONPATH=hseling-lib-{{cookiecutter.package_uri_part}}:hseling-api-{{cookiecut
 
 ## Docker containers
 
+{% if cookiecutter.mysql %}
+Prior to running MySQL server using Docker Compose
+
+```bash
+rm -fr hseling-data-new-app/mysql/.gitkeep
+```
+{%- endif %}
+
 Build and run composed docker environment:
 
     docker-compose build
