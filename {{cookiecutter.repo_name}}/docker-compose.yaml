@@ -28,7 +28,7 @@ services:
         source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
         target: /app/hseling_api_{{cookiecutter.package_name}}
       - type: bind
-        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/api
         target: /data
 {%- if cookiecutter.mysql or cookiecutter.celery %}
     depends_on:
@@ -52,7 +52,7 @@ services:
         source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
         target: /app/hseling_api_{{cookiecutter.package_name}}
       - type: bind
-        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/api
         target: /data
     depends_on:
 {%- if cookiecutter.mysql %}
@@ -96,5 +96,5 @@ services:
         source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
         target: /app/hseling_api_{{cookiecutter.package_name}}
       - type: bind
-        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/web
         target: /data
