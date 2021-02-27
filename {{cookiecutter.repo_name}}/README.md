@@ -2,12 +2,22 @@
 
 This is {{ cookiecutter.application_name }}.
 
-## How to run without Docker
+## How to run Web part without Docker
 
 Install NPM dependencies:
 
 ```bash
 cd hseling-web-{{cookiecutter.package_uri_part}}; npm install .; cd ..
+```
+
+Create venv and install Python dependencies for Web part:
+
+```bash
+cd hseling-web-{{cookiecutter.package_uri_part}}
+python3 -m venv .env
+source .env/bin/activate
+pip install -r requirements.txt
+cd ..
 ```
 
 To run Web Application:
@@ -16,6 +26,19 @@ To run Web Application:
 export HSELING_RPC_ENDPOINT=http://localhost:5000/rpc/
 export PYTHONPATH=hseling-web-{{cookiecutter.package_uri_part}}
 python3 hseling-web-{{cookiecutter.package_uri_part}}/hseling_web_{{cookiecutter.package_name}}/main.py
+deactivate
+```
+
+## How to run API/RPC part without Docker
+
+Create venv and install Python dependencies for Web part:
+
+```bash
+cd hseling-api-{{cookiecutter.package_uri_part}}
+python3 -m venv .env
+source .env/bin/activate
+pip install -r requirements.txt
+cd ..
 ```
 
 To run RPC server:
@@ -24,15 +47,6 @@ To run RPC server:
 PYTHONPATH=hseling-lib-{{cookiecutter.package_uri_part}}:hseling-api-{{cookiecutter.package_uri_part}} python hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}/main.py
 ```
 
-## Local development
-
-
-## API development
-
-You can develop your API without docker environment:
-
-    cd hseling_api_{{ cookiecutter.package_name }}/
-    make run
 
 ## Docker containers
 

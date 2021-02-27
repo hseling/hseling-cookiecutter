@@ -12,9 +12,9 @@ x-common-variables: &common-variables
   MYSQL_PASSWORD: mysql123
   MYSQL_DATABASE: hse-api-database
 {%- endif %}
- HSELING_RPC_ENDPOINT: http://hse-api-web:80/rpc/
- HSELING_API_ENDPOINT: http://hse-api-web:80/api/
- RESTRICTED_MODE: 0
+  HSELING_RPC_ENDPOINT: http://hse-api-web:80/rpc/
+  HSELING_API_ENDPOINT: http://hse-api-web:80/api/
+  RESTRICTED_MODE: 0
 
 services:
   hse-api-web:
@@ -24,11 +24,15 @@ services:
     ports:
       - "5000:80"
     volumes:
-      - ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
-    - type: bind
-      source: ./hseling-data-{{cookiecutter.package_uri_part}}
-      target: /data
+      - type: bind
+        source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
+        target: /app/hseling_api_{{cookiecutter.package_name}}
+      - type: bind
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
+        target: /data
+{%- if cookiecutter.mysql or cookiecutter.celery %}
     depends_on:
+{%- endif %}
 {%- if cookiecutter.mysql %}
       - mysql
 {%- endif %}
@@ -44,10 +48,12 @@ services:
       dockerfile: hseling-api-{{cookiecutter.package_uri_part}}/Dockerfile
     command: celery -A main.celery worker
     volumes:
-      - ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
-    - type: bind
-      source: ./hseling-data-{{cookiecutter.package_uri_part}}
-      target: /data
+      - type: bind
+        source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
+        target: /app/hseling_api_{{cookiecutter.package_name}}
+      - type: bind
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
+        target: /data
     depends_on:
 {%- if cookiecutter.mysql %}
       - mysql
@@ -87,6 +93,8 @@ services:
     environment: *common-variables
     volumes:
       - type: bind
-        source: ./hseling-data-{{cookiecutter.package_uri_part}}/web
+        source: ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}
+        target: /app/hseling_api_{{cookiecutter.package_name}}
+      - type: bind
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/app
         target: /data
-

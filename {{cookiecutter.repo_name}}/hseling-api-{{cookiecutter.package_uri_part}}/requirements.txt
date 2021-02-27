@@ -1,17 +1,7 @@
 flask
-{% if not cookiecutter.rest -%}
 json-rpc
-{%- endif %}
-{% if cookiecutter.celery -%}
-celery[redis]
-{%- endif %}
-minio
-{% if cookiecutter.mysql -%}
-mysql
-mysql-connector
-{%- endif %}
+
 requests
 lxml
 html5lib
 beautifulsoup4
-scrapy

@@ -17,7 +17,9 @@ from hseling_lib_{{cookiecutter.package_name}}.query import query_data
 app = Flask(__name__)
 app.config['DEBUG'] = False
 app.config['LOG_DIR'] = '/tmp/'
-app.config.from_envvar('HSELING_API_{{cookiecutter.package_name.upper()}}_SETTINGS')
+if os.environ.get('HSELING_API_{{cookiecutter.package_name.upper()}}_SETTINGS'):
+    app.config.from_envvar('HSELING_API_{{cookiecutter.package_name.upper()}}_SETTINGS')
+
 {% if cookiecutter.celery -%}
 app.config.update(
     CELERY_BROKER_URL=boilerplate.CELERY_BROKER_URL,
@@ -37,7 +39,7 @@ if not app.debug:
 
 log = getLogger(__name__)
 {% if not cookiecutter.rest %}
-app.register_blueprint(api.as_blueprint(), url_prefix="/rpc")
+app.register_blueprint(api.as_blueprint(), url_prefix="/rpc/")
 {% endif %}
 
 ALLOWED_EXTENSIONS = ['txt']
@@ -74,7 +76,7 @@ def process_task(file_ids_list=None):
 @app.route('/healthz')
 def healthz():
     app.logger.info('Health checked')
-    return jsonify({"status": "ok", "message": "Application {{cookiecutter.application_name}}"})
+    return jsonify({"status": "ok", "message": "hseling-api-{{cookiecutter.package_uri_part}}"})
 
 {% if cookiecutter.rest -%}
 @app.route('/upload', methods=['GET', 'POST'])
@@ -259,8 +261,15 @@ def main_endpoint():
     return jsonify({"endpoints": get_endpoints(ctx)})
 {%- endif %}
 
+{% if not cookiecutter.rest -%}
+@api.dispatcher.add_method
+def add(a, b):
+    return a + b
+{%- endif %}
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=80)
+    app.run(host='0.0.0.0', debug=True, port=5000)
 
 
 __all__ = [app{%- if cookiecutter.celery -%}, celery{%- endif -%}]

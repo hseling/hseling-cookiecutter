@@ -8,10 +8,6 @@ from celery import Celery, result
 {%- endif %}
 from werkzeug.utils import secure_filename
 
-from minio import Minio
-from minio.error import (ResponseError, BucketAlreadyOwnedByYou,
-                         BucketAlreadyExists)
-
 {% if cookiecutter.mysql -%}
 from mysql.connector import connect
 {%- endif %}
@@ -51,7 +47,7 @@ ENDPOINT_PROCESS = "ENDPOINT_PROCESS"
 ENDPOINT_STATUS = "ENDPOINT_STATUS"
 ENDPOINT_QUERY = "ENDPOINT_QUERY"
 
-RESTRICTED_MODE = environ["RESTRICTED_MODE"]
+RESTRICTED_MODE = environ.get("RESTRICTED_MODE")
 
 {% if cookiecutter.celery -%}
 def make_celery(app):
