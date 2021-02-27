@@ -2,11 +2,30 @@
 
 This is {{ cookiecutter.application_name }}.
 
+## How to run without Docker
+
+Install NPM dependencies:
+
+```bash
+cd hseling-web-{{cookiecutter.package_uri_part}}; npm install .; cd ..
+```
+
+To run Web Application:
+
+```bash
+export HSELING_RPC_ENDPOINT=http://localhost:5000/rpc/
+export PYTHONPATH=hseling-web-{{cookiecutter.package_uri_part}}
+python3 hseling-web-{{cookiecutter.package_uri_part}}/hseling_web_{{cookiecutter.package_name}}/main.py
+```
+
+To run RPC server:
+
+```bash
+PYTHONPATH=hseling-lib-{{cookiecutter.package_uri_part}}:hseling-api-{{cookiecutter.package_uri_part}} python hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}/main.py
+```
+
 ## Local development
 
-Install npm dependencies:
-
-    cd hseling_web_{{ cookiecutter.package_name }}/src/web/static; npm install .; cd ../../../..
 
 ## API development
 

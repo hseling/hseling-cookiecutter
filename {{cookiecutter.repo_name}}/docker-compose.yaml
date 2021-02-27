@@ -12,19 +12,21 @@ x-common-variables: &common-variables
   MYSQL_PASSWORD: mysql123
   MYSQL_DATABASE: hse-api-database
 {%- endif %}
-  RESTRICTED_MODE: 0
+ HSELING_RPC_ENDPOINT: http://hse-api-web:80/rpc/
+ HSELING_API_ENDPOINT: http://hse-api-web:80/api/
+ RESTRICTED_MODE: 0
 
 services:
   hse-api-web:
     build:
       context: .
-      dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
+      dockerfile: hseling-api-{{cookiecutter.package_uri_part}}/Dockerfile
     ports:
       - "5000:80"
     volumes:
-      - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
+      - ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
     - type: bind
-      source: ./hseling_data_{{cookiecutter.package_name}}
+      source: ./hseling-data-{{cookiecutter.package_uri_part}}
       target: /data
     depends_on:
 {%- if cookiecutter.mysql %}
@@ -39,12 +41,12 @@ services:
   hse-api-celery:
     build:
       context: .
-      dockerfile: hseling_api_{{cookiecutter.package_name}}/Dockerfile
+      dockerfile: hseling-api-{{cookiecutter.package_uri_part}}/Dockerfile
     command: celery -A main.celery worker
     volumes:
-      - ./hseling_api_{{cookiecutter.package_name}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
+      - ./hseling-api-{{cookiecutter.package_uri_part}}/hseling_api_{{cookiecutter.package_name}}:/app/hseling_api_{{cookiecutter.package_name}}
     - type: bind
-      source: ./hseling_data_{{cookiecutter.package_name}}
+      source: ./hseling-data-{{cookiecutter.package_uri_part}}
       target: /data
     depends_on:
 {%- if cookiecutter.mysql %}
@@ -60,6 +62,10 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment: *common-variables
+    volumes:
+      - type: bind
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/mysql
+        target: /var/lib/mysql
 {%- endif %}
 
 {% if cookiecutter.celery %}
@@ -67,56 +73,20 @@ services:
     image: redis:latest
 {%- endif %}
 
- # Development related
-  db:
-    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
+  hse-web-web:
     build:
-      context: ./hseling_web_{{cookiecutter.package_name}}/
-      dockerfile: ./docker/db/Dockerfile
-      args:
-        # These values should be in sync with environment.env
-        # for development. If you change them, you'll 
-        # need to rebuild the container
-        - POSTGRES_DB=templatesitedb
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=somepassword
-        - POSTGRES_PORT=5432
-        # Remember to keep this consistent
-        - django_secret_key=secret_key!
-
-  log:
-    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-    build:
-      context: ./hseling_web_{{cookiecutter.package_name}}/
-      dockerfile: ./docker/log/Dockerfile
-
-  build-deps:
-    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-    build:
-      context: ./hseling_web_{{cookiecutter.package_name}}/
-      dockerfile: ./docker/deps/Dockerfile
-    volumes:
-      - ./hseling_web_{{cookiecutter.package_name}}/vendor:/opt/ext_vendor
-    command: /opt/copy_deps.sh
-
-  dev-server:
-    env_file: hseling_web_{{cookiecutter.package_name}}/environment.env
-    environment:
-      - CONSOLE_LOGS=1
-    build: 
-      context: ./hseling_web_{{cookiecutter.package_name}}/
-      args:
-        # Remember to keep this consistent
-        - django_secret_key=secret_key!
-    command: ./start_dev_server.sh
+      context: .
+      dockerfile: hseling-web-{{cookiecutter.package_uri_part}}/Dockerfile
     ports:
       - "8000:80"
-    volumes:
-      - ./hseling_web_{{cookiecutter.package_name}}/src:/opt/code
     depends_on:
-      - db
-      - log
       - hse-api-web
 {%- if cookiecutter.celery %}
       - hse-api-celery
 {%- endif %}
+    environment: *common-variables
+    volumes:
+      - type: bind
+        source: ./hseling-data-{{cookiecutter.package_uri_part}}/web
+        target: /data
+
